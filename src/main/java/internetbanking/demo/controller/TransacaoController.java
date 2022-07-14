@@ -1,18 +1,14 @@
 package internetbanking.demo.controller;
 
 
-import internetbanking.demo.SaqueDTO.TransacoesDTO;
-import internetbanking.demo.model.Cliente;
 import internetbanking.demo.model.TransacaoRepository;
 import internetbanking.demo.model.Transacoes;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/transacoes")
@@ -28,8 +24,10 @@ public class TransacaoController {
 
 
     @PostMapping
-    public Transacoes salvartransacoes(@RequestBody Transacoes transacoes){
+    public Transacoes salvarTransacao(@RequestBody Transacoes transacoes){
         transacoes.setData_hora(LocalDateTime.now(ZoneId.of("UTC")));
+        transacoes.setData_inicio(LocalDateTime.now(ZoneId.of("UTC")));
+        transacoes.setData_fim(LocalDateTime.now(ZoneId.of("UTC")));
         return repository.save(transacoes);
 
 
@@ -37,8 +35,14 @@ public class TransacaoController {
 
 
     @GetMapping
-    public ResponseEntity<Object>listar(){
-        List<Transacoes> transacoes = this.repository.findAll();
-        return new ResponseEntity<>(transacoes, HttpStatus.OK);
+    public List<Transacoes>listarTransacoes(){
+        return repository.findAll();
+    }
+
+    @GetMapping("/historico")
+    public List<Transacoes>listarData(@RequestParam("id_cliente")long id_cliente, @RequestParam("data_inicio")LocalDate data_inicio,@RequestParam("data_fim")LocalDate data_fim) {
+
+        var x = repository.getData_between(data_inicio, data_fim, id_cliente);
+        return x;
     }
 }
